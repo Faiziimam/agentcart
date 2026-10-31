@@ -1,0 +1,34 @@
+# Publishes to PyPI with Trusted Publishing (no API tokens) and signed build provenance.
+# One-time setup: add this repo + workflow as a trusted publisher on pypi.org, and create a
+# protected GitHub environment named "pypi" that requires maintainer approval.
+name: Release
+on:
+  push: { tags: ["v*"] }
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v5
+        with: { persist-credentials: false }
+      - uses: astral-sh/setup-uv@v6
+      - run: uv build
+      - uses: actions/attest-build-provenance@v2
+        with: { subject-path: "dist/*" }
+      - uses: actions/upload-artifact@v4
+        with: { name: dist, path: dist/ }
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { name: dist, path: dist/ }
+      - uses: pypa/gh-action-pypi-publish@release/v1

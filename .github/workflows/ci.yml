@@ -1,0 +1,43 @@
+name: CI
+on:
+  push: { branches: [main] }
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: ["3.11", "3.13"]
+    steps:
+      - uses: actions/checkout@v5
+        with: { persist-credentials: false }
+      - uses: astral-sh/setup-uv@v6
+        with: { python-version: "${{ matrix.python }}" }
+      - run: uv sync --extra dev
+      - run: uv run playwright install --with-deps chromium
+      - run: uv run ruff check .
+      - run: uv run mypy src
+      - run: uv run pytest -q
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with: { persist-credentials: false }
+      - uses: astral-sh/setup-uv@v6
+      - name: Export locked third-party dependencies
+        run: uv export --frozen --all-extras --no-emit-project --no-hashes -o audit-requirements.txt
+      - name: Known-vulnerability scan of dependencies
+        run: uvx pip-audit --strict --no-deps --disable-pip -r audit-requirements.txt
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with: { fetch-depth: 0, persist-credentials: false }
+      - name: Scan full history for leaked API keys / tokens
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

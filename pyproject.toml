@@ -1,0 +1,63 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agentcart"
+version = "0.1.0"
+description = "Security-first MCP server that lets AI agents shop for you: the agent prepares checkout, you approve payment (UPI) on your phone."
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.11"
+authors = [{ name = "Faiz Imam", email = "faizkalwara786@gmail.com" }]
+maintainers = [{ name = "Faiz Imam" }]
+keywords = ["mcp", "agent", "checkout", "upi", "india", "shopping", "claude", "chatgpt"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: End Users/Desktop",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Topic :: Security :: Cryptography",
+]
+dependencies = [
+  "mcp>=2.3,<3",
+  "httpx>=0.27,<1",
+  "cryptography>=43",
+  "playwright>=1.48,<2",
+  "segno>=1.6",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-asyncio>=0.24", "ruff>=0.6", "mypy>=1.11", "pip-audit>=2.7"]
+
+[project.scripts]
+agentcart = "agentcart.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/Faiziimam/agentcart"
+Security = "https://github.com/Faiziimam/agentcart/blob/main/SECURITY.md"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agentcart"]
+
+[tool.ruff]
+line-length = 115
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "S", "UP", "SIM", "RUF"]
+ignore = ["S101"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S", "B"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
