@@ -38,6 +38,6 @@ jobs:
       - uses: actions/checkout@v5
         with: { fetch-depth: 0, persist-credentials: false }
       - name: Scan full history for leaked API keys / tokens
-        uses: gitleaks/gitleaks-action@v2
+        uses: gitleaks/gitleaks-action@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
