@@ -18,7 +18,7 @@ jobs:
         with: { persist-credentials: false }
       - uses: astral-sh/setup-uv@v6
       - run: uv build
-      - uses: actions/attest-build-provenance@v2
+      - uses: actions/attest-build-provenance@v4
         with: { subject-path: "dist/*" }
       - uses: actions/upload-artifact@v4
         with: { name: dist, path: dist/ }
