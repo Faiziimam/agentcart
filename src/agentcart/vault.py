@@ -74,7 +74,7 @@ def _derive(passphrase: str, salt: bytes, kdf: dict[str, int]) -> bytes:
 
 @dataclass
 class UnlockedVault:
-    signing_key: Ed25519PrivateKey
+    signing_key: Ed25519PrivateKey  # gitleaks:allow (type annotation, not a secret)
     data: dict[str, Any]
 
 
