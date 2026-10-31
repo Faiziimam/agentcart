@@ -30,17 +30,23 @@ def _canon(obj: Any) -> bytes:
 @contextlib.contextmanager
 def _locked(path: Path) -> Iterator[None]:
     lock = path.with_suffix(".lock")
-    fd = os.open(lock, os.O_RDWR | os.O_CREAT, 0o600)
+    fd = os.open(lock, os.O_RDWR | os.O_CREAT | paths.O_BINARY, 0o600)
     try:
         if sys.platform == "win32":  # pragma: no cover
             import msvcrt
 
+            os.lseek(fd, 0, os.SEEK_SET)
             msvcrt.locking(fd, msvcrt.LK_LOCK, 1)
+            try:
+                yield
+            finally:
+                os.lseek(fd, 0, os.SEEK_SET)
+                msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
         else:
             import fcntl
 
             fcntl.flock(fd, fcntl.LOCK_EX)
-        yield
+            yield  # released on close
     finally:
         os.close(fd)
 
@@ -51,7 +57,7 @@ def read_verified(genesis: str, path: Path | None = None) -> list[dict[str, Any]
         return []
     entries: list[dict[str, Any]] = []
     prev = genesis
-    for n, line in enumerate(path.read_text().splitlines(), start=1):
+    for n, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
         if not line.strip():
             continue
         try:
@@ -75,7 +81,7 @@ def append(genesis: str, event: str, data: dict[str, Any], path: Path | None = N
         body = {"seq": len(entries), "ts": datetime.now(UTC).isoformat(), "event": event,
                 "data": json.loads(_canon(data))}
         entry = {**body, "prev": prev, "hash": hashlib.sha256(prev.encode() + _canon(body)).hexdigest()}
-        fd = os.open(path, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o600)
+        fd = os.open(path, os.O_WRONLY | os.O_APPEND | os.O_CREAT | paths.O_BINARY, 0o600)
         try:
             os.write(fd, _canon(entry) + b"\n")
             os.fsync(fd)

@@ -63,7 +63,7 @@ def load() -> Policy:
     if not f.exists():
         return Policy()
     try:
-        doc = json.loads(f.read_text())
+        doc = json.loads(f.read_text(encoding="utf-8"))
         pol = Policy(**doc["policy"])
     except (ValueError, KeyError, TypeError) as e:
         raise TamperError("policy file is corrupted") from e

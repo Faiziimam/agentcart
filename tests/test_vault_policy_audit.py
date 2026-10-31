@@ -1,4 +1,5 @@
 import json
+import os
 from decimal import Decimal
 
 import pytest
@@ -14,13 +15,14 @@ def test_vault_roundtrip_and_wrong_pass(unlocked):
         vault.unlock("wrong passphrase!!")
 
 
+@pytest.mark.skipif(os.name != "posix", reason="POSIX permission bits; Windows uses per-user profile ACLs")
 def test_vault_file_is_private(unlocked):
     assert oct(paths.vault_file().stat().st_mode & 0o777) == "0o600"
     assert oct(paths.home().stat().st_mode & 0o777) == "0o700"
 
 
 def test_vault_tamper_detected(unlocked):
-    doc = json.loads(paths.vault_file().read_text())
+    doc = json.loads(paths.vault_file().read_text(encoding="utf-8"))
     doc["public_key"] = vault.b64e(b"\x00" * 32)
     paths.vault_file().write_text(json.dumps(doc))
     with pytest.raises((VaultError, TamperError)):
@@ -28,7 +30,7 @@ def test_vault_tamper_detected(unlocked):
 
 
 def test_weak_kdf_rejected(unlocked):
-    doc = json.loads(paths.vault_file().read_text())
+    doc = json.loads(paths.vault_file().read_text(encoding="utf-8"))
     doc["kdf"]["n"] = 2
     paths.vault_file().write_text(json.dumps(doc))
     with pytest.raises(TamperError):
@@ -56,7 +58,7 @@ def test_allows_postal_pincode(unlocked):
 def test_policy_default_and_tamper(unlocked):
     pol = policy.load()
     assert pol.autopay_enabled is False
-    doc = json.loads(paths.policy_file().read_text())
+    doc = json.loads(paths.policy_file().read_text(encoding="utf-8"))
     doc["policy"]["autopay_enabled"] = True
     doc["policy"]["per_order_cap_inr"] = "9999"
     paths.policy_file().write_text(json.dumps(doc))
@@ -113,7 +115,7 @@ def test_audit_chain_tamper(unlocked):
     for i in range(3):
         audit.append(g, "autopay_attempt", {"amount": str(i)})
     assert len(audit.read_verified(g)) == 3
-    lines = paths.audit_file().read_text().splitlines()
+    lines = paths.audit_file().read_text(encoding="utf-8").splitlines()
     edited = json.loads(lines[1])
     edited["data"]["amount"] = "0"
     paths.audit_file().write_text("\n".join([lines[0], json.dumps(edited), lines[2]]) + "\n")

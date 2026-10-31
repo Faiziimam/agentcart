@@ -112,7 +112,7 @@ def _load_doc() -> dict[str, Any]:
     if not exists():
         raise VaultError("no vault found; run 'agentcart init' in a terminal first")
     try:
-        doc: dict[str, Any] = json.loads(paths.vault_file().read_text())
+        doc: dict[str, Any] = json.loads(paths.vault_file().read_text(encoding="utf-8"))
     except ValueError as e:
         raise TamperError("vault file is corrupted") from e
     if doc.get("format") != FORMAT or doc.get("kdf", {}).get("alg") != "scrypt":
