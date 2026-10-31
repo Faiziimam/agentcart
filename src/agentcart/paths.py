@@ -6,6 +6,9 @@ import os
 import sys
 from pathlib import Path
 
+# Windows opens files in text mode by default and would rewrite b"\n" as b"\r\n".
+O_BINARY: int = getattr(os, "O_BINARY", 0)
+
 
 def home() -> Path:
     override = os.environ.get("AGENTCART_HOME")
@@ -30,7 +33,7 @@ def ensure_private_dir(path: Path) -> Path:
 def write_private(path: Path, data: bytes) -> None:
     """Atomically write a file readable only by the current user."""
     tmp = path.with_suffix(path.suffix + ".tmp")
-    flags = os.O_WRONLY | os.O_CREAT | os.O_TRUNC
+    flags = os.O_WRONLY | os.O_CREAT | os.O_TRUNC | O_BINARY
     fd = os.open(tmp, flags, 0o600)
     try:
         os.write(fd, data)

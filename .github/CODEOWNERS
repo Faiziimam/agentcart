@@ -1,0 +1,12 @@
+# Every change needs approval from the project owner.
+*                       @Faiziimam
+# Security-critical paths (explicit, so this stays true if more owners are added later)
+/src/agentcart/vault.py     @Faiziimam
+/src/agentcart/policy.py    @Faiziimam
+/src/agentcart/audit.py     @Faiziimam
+/src/agentcart/netsafe.py   @Faiziimam
+/src/agentcart/checkout.py  @Faiziimam
+/src/agentcart/browser.py   @Faiziimam
+/.github/                   @Faiziimam
+/pyproject.toml             @Faiziimam
+/uv.lock                    @Faiziimam
