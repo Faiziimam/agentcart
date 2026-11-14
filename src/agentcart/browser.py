@@ -9,8 +9,10 @@
 
 from __future__ import annotations
 
+import asyncio
 import ipaddress
 import os
+import sys
 from dataclasses import dataclass
 from typing import Any
 from urllib.parse import urlsplit
@@ -32,6 +34,20 @@ def _executable() -> str | None:
     if explicit:
         return explicit
     return None
+
+
+_MISSING_BROWSER = "Executable doesn't exist"
+
+
+async def _install_chromium() -> None:
+    """One-time download of Playwright's Chromium (fixed command, no user-controlled input)."""
+    print("agentcart: first run, downloading Chromium (one time, ~150 MB)...", file=sys.stderr)
+    proc = await asyncio.create_subprocess_exec(
+        sys.executable, "-m", "playwright", "install", "chromium",
+        stdout=sys.stderr, stderr=sys.stderr,
+    )
+    if await proc.wait() != 0:
+        raise RuntimeError("Chromium download failed; run 'uvx playwright install chromium' manually")
 
 
 @dataclass
@@ -65,7 +81,13 @@ class BrowserManager:
         exe = _executable()
         if exe:
             kwargs["executable_path"] = exe
-        ctx = await pw.chromium.launch_persistent_context(str(profile), **kwargs)
+        try:
+            ctx = await pw.chromium.launch_persistent_context(str(profile), **kwargs)
+        except Exception as e:
+            if exe or _MISSING_BROWSER not in str(e):
+                raise
+            await _install_chromium()
+            ctx = await pw.chromium.launch_persistent_context(str(profile), **kwargs)
         allowed = tuple(domains) + PAYMENT_GATEWAYS
 
         async def guard(route: Route) -> None:
