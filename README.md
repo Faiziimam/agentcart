@@ -33,55 +33,43 @@ PINs, CVVs, OTPs and card numbers.
 
 ## Install
 
-Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/).
-
-```bash
-uv tool install agentcart
-```
-
-```bash
-uvx playwright install chromium
-```
-
-```bash
-agentcart doctor
-```
-
-> Before the first PyPI release, install from source instead:
-> `uv tool install git+https://github.com/Faiziimam/agentcart`
-
-### Connect your AI client
+One line, no separate install step. Requires [uv](https://docs.astral.sh/uv/) (it runs agentcart on
+demand). On first checkout agentcart downloads its own Chromium once.
 
 **Claude Code**
 
 ```bash
-claude mcp add agentcart -- agentcart serve
+claude mcp add agentcart -- uvx agentcart serve
 ```
 
-**Claude Desktop**: in `claude_desktop_config.json`:
+**Claude Desktop / Cursor**: add to `claude_desktop_config.json` or `~/.cursor/mcp.json`:
 
 ```json
-{ "mcpServers": { "agentcart": { "command": "agentcart", "args": ["serve"] } } }
+{ "mcpServers": { "agentcart": { "command": "uvx", "args": ["agentcart", "serve"] } } }
 ```
-
-**Cursor**: in `~/.cursor/mcp.json`, use the same JSON as Claude Desktop.
 
 **OpenAI Codex CLI (GPT models)**: in `~/.codex/config.toml`:
 
 ```toml
 [mcp_servers.agentcart]
-command = "agentcart"
-args = ["serve"]
+command = "uvx"
+args = ["agentcart", "serve"]
 ```
+
+> Until the first PyPI release, use `uvx --from git+https://github.com/Faiziimam/agentcart agentcart serve`
+> as the command instead.
 
 **ChatGPT app**: ChatGPT connects to *remote* MCP servers over HTTPS. agentcart is **local-only on
 purpose**, so your browser sessions and payment flow never sit on a public server. Use Codex CLI or
 any other local MCP client to work with GPT models.
 
+Optional: `uvx agentcart doctor` checks your setup. For the other commands below
+(`agentcart login`, `policy`, `kill`), run `uv tool install agentcart` to put `agentcart` on your PATH.
+
 ### Log in to a store once
 
 ```bash
-agentcart login <site>
+uvx agentcart login <site>
 ```
 
 This opens a normal browser window. You log in and save your delivery address there yourself.
