@@ -1,5 +1,7 @@
 # agentcart
 
+[![M8ven Score](https://m8ven.ai/badge/mcp/faiziimam-agentcart-1afxuy?v=035aecde55b73fb19e1548875a82f6fa)](https://m8ven.ai/mcp/faiziimam-agentcart-1afxuy?s=readme)
+
 **Let your AI agent shop for you, while you stay in control of the money.**
 
 agentcart is an open-source [MCP](https://modelcontextprotocol.io) server. Your agent (Claude, GPT
