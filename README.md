@@ -56,9 +56,6 @@ command = "uvx"
 args = ["agentcart", "serve"]
 ```
 
-> Until the first PyPI release, use `uvx --from git+https://github.com/Faiziimam/agentcart agentcart serve`
-> as the command instead.
-
 **ChatGPT app**: ChatGPT connects to *remote* MCP servers over HTTPS. agentcart is **local-only on
 purpose**, so your browser sessions and payment flow never sit on a public server. Use Codex CLI or
 any other local MCP client to work with GPT models.

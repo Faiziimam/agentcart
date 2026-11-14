@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "agentcart"
-version = "0.1.0"
+version = "0.1.1"
 description = "Security-first MCP server that lets AI agents shop for you: the agent prepares checkout, you approve payment (UPI) on your phone."
 readme = "README.md"
 license = "Apache-2.0"
